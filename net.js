@@ -1,13 +1,20 @@
 const server = require('net').createServer();
+let counter = 0;
+let sockets = {};
 server.on('connection',socket => {
-    console.log('Connection established');
+    socket.id = counter++;
+    sockets[socket.id] = socket;
+    console.log('Client connected');
     socket.write('Welcome to new client');
     socket.on('data', data => {
-        console.log('buffer data:', data);
-        socket.write('Recieved data: ', data);
-        socket.write(data);
+        Object.entries(sockets).forEach(([, cs]) => {
+        cs.write(socket.id+": ");
+        cs.write(data);
+
+        })
     });
     socket.on('end', () => {
+        delete sockets[socket.id];
         console.log('Client disconnected')
     })
 });
